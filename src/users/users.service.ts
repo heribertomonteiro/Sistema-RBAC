@@ -15,6 +15,7 @@ export class UsersService {
             name: user.name,
             email: user.email,
             roles: user.roles ?? [UserRole.User],
+            password: user.password,
         };
 
         this.users.push(newUser);
