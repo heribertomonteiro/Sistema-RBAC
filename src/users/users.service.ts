@@ -24,4 +24,8 @@ export class UsersService {
     findAll(): User[] {
         return this.users;
     }
+
+    async findByEmail(email: string): Promise<User | undefined> {
+        return await this.users.find(user => user.email === email);
+    }
 }
