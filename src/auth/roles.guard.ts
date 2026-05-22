@@ -4,7 +4,26 @@ import {
   ExecutionContext,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { UserRole } from 'src/common/enums/user-role.enum';
+import { UserRole } from '../common/enums/user-role.enum';
+
+function expandRoleHierarchy(roles: UserRole[] | undefined | null): Set<UserRole> {
+  const effectiveRoles = new Set<UserRole>();
+
+  for (const role of roles ?? []) {
+    effectiveRoles.add(role);
+
+    if (role === UserRole.Admin) {
+      effectiveRoles.add(UserRole.Moderator);
+      effectiveRoles.add(UserRole.User);
+    }
+
+    if (role === UserRole.Moderator) {
+      effectiveRoles.add(UserRole.User);
+    }
+  }
+
+  return effectiveRoles;
+}
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -25,8 +44,7 @@ export class RolesGuard implements CanActivate {
 
     const { user } = context.switchToHttp().getRequest();
 
-    return requiredRoles.some((role) =>
-      user.roles?.includes(role),
-    );
+    const effectiveRoles = expandRoleHierarchy(user?.roles);
+    return requiredRoles.some((role) => effectiveRoles.has(role));
   }
 }

@@ -25,6 +25,34 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## API docs (Swagger)
+
+- Start the API: `npm run start:dev`
+- Open Swagger UI: http://localhost:3000/docs
+
+### Auth (JWT)
+
+1. Call `POST /auth/login` with your email/password
+2. Copy the returned `access_token`
+3. In Swagger UI click **Authorize** and paste:
+
+```
+Bearer <access_token>
+```
+
+### RBAC rules
+
+- `Admin` inherits `Moderator` + `User`
+- `Moderator` inherits `User`
+- `User` can create posts
+
+Main endpoints:
+
+- Users (Admin): `POST /users`, `GET /users`, `GET /users/search`, `PATCH /users/:id/roles`, `DELETE /users/:id`
+- Posts (Public): `GET /post` (published only)
+- Posts (User+): `POST /post` (creates unpublished)
+- Posts (Moderator+): `GET /post/moderation`, `PATCH /post/:id`, `PATCH /post/:id/publish`, `PATCH /post/:id/unpublish`, `DELETE /post/:id`
+
 ## Project setup
 
 ```bash
@@ -39,6 +67,9 @@ $ npm run start
 
 # watch mode
 $ npm run start:dev
+
+# watch mode (kills process on PORT first; fixes EADDRINUSE on Windows)
+$ npm run start:dev:clean
 
 # production mode
 $ npm run start:prod
