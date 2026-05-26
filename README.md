@@ -1,129 +1,154 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Sistema RBAC — Blog API (NestJS + Prisma)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API de estudo em **NestJS** com **autenticação JWT** e **autorização RBAC** (Role-Based Access Control), usando **Prisma** + **PostgreSQL**. O projeto simula um mini-blog com usuários, posts e um fluxo de moderação.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Principais recursos
 
-## Description
+- Autenticação via **JWT**
+- Autorização **RBAC** com `@Roles()` + `RolesGuard`
+- Hierarquia de permissões: **Admin > Moderator > User**
+- **Soft delete** de usuário via `isActive` (desativa acesso)
+- Persistência com **Prisma ORM** + **migrations**
+- Validação de DTOs com `class-validator`
+- **Swagger** disponível em ambiente não-prod (rota `/docs`)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Stack
 
-## API docs (Swagger)
+- Node.js + TypeScript
+- NestJS
+- Prisma ORM
+- PostgreSQL
+- Passport + JWT
+- Argon2 (hash de senha) e compatibilidade com bcrypt para migração de hash (quando aplicável)
 
-- Start the API: `npm run start:dev`
-- Open Swagger UI: http://localhost:3000/docs
+## Requisitos
 
-### Auth (JWT)
+- Node.js (recomendado: LTS)
+- PostgreSQL rodando localmente ou em container
 
-1. Call `POST /auth/login` with your email/password
-2. Copy the returned `access_token`
-3. In Swagger UI click **Authorize** and paste:
+## Variáveis de ambiente
 
-```
-Bearer <access_token>
-```
-
-### RBAC rules
-
-- `Admin` inherits `Moderator` + `User`
-- `Moderator` inherits `User`
-- `User` can create posts
-
-Main endpoints:
-
-- Users (Admin): `POST /users`, `GET /users`, `GET /users/search`, `PATCH /users/:id/roles`, `DELETE /users/:id`
-- Posts (Public): `GET /post` (published only)
-- Posts (User+): `POST /post` (creates unpublished)
-- Posts (Moderator+): `GET /post/moderation`, `PATCH /post/:id`, `PATCH /post/:id/publish`, `PATCH /post/:id/unpublish`, `DELETE /post/:id`
-
-## Project setup
+Crie um arquivo `.env` na raiz do projeto:
 
 ```bash
-$ npm install
+DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/sistema_rbac?schema=public"
+PORT=3000
+# Em produção o Swagger não sobe (ver src/main.ts)
+NODE_ENV=development
 ```
 
-## Compile and run the project
+> Observação: o projeto carrega variáveis com `dotenv/config`.
+
+## Instalação
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# watch mode (kills process on PORT first; fixes EADDRINUSE on Windows)
-$ npm run start:dev:clean
-
-# production mode
-$ npm run start:prod
+npm install
 ```
 
-## Run tests
+## Banco de dados (Prisma)
+
+Aplicar migrations no banco:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npx prisma migrate dev
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Opcional (útil para inspecionar dados):
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npx prisma studio
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Executando o projeto
 
-## Resources
+Modo desenvolvimento:
 
-Check out a few resources that may come in handy when working with NestJS:
+```bash
+npm run start:dev
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Build e produção:
 
-## Support
+```bash
+npm run build
+npm run start:prod
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## Documentação (Swagger)
 
-## Stay in touch
+Com a aplicação rodando e **fora de produção** (`NODE_ENV` diferente de `production`), acesse:
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- `http://localhost:3000/docs`
 
-## License
+## RBAC (roles)
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Roles disponíveis:
+
+- `Admin`
+- `Moderator`
+- `User`
+
+Hierarquia (roles efetivas):
+
+- `Admin` inclui permissões de `Moderator` e `User`
+- `Moderator` inclui permissões de `User`
+
+## Rotas principais
+
+### Auth
+
+- `POST /auth/login` — retorna `access_token`
+
+Exemplo de body:
+
+```json
+{ "email": "heriberto@example.com", "password": "minha-senha" }
+```
+
+### Users
+
+- `GET /users/profile` — perfil do usuário autenticado (JWT)
+- `POST /users` — (Admin) cria usuário
+- `GET /users` — (Admin) lista usuários (safe)
+- `GET /users/search?email=...` — (Admin) busca por email (safe)
+- `PATCH /users/:id/roles` — (Admin) atualiza roles
+- `PATCH /users/:id` — (Admin) desativa usuário (soft delete via `isActive=false`)
+
+### Posts
+
+- `GET /post` — lista posts publicados (público)
+- `POST /post` — (User) cria post
+- `GET /post/moderation` — (Moderator) lista todos para moderação
+- `PATCH /post/:id` — (Moderator) edita título/conteúdo
+- `PATCH /post/:id/publish` — (Moderator) publica
+- `PATCH /post/:id/unpublish` — (Moderator) despublica
+- `DELETE /post/:id` — (Moderator) remove
+
+## Primeiro usuário Admin
+
+O endpoint de criação de usuários (`POST /users`) é protegido para **Admin**. Para criar o primeiro Admin em ambiente de estudo, uma opção é inserir um registro diretamente no banco (ex.: via Prisma Studio) com `roles=["Admin"]` e `password` com hash Argon2.
+
+## Testes e qualidade
+
+Testes unitários:
+
+```bash
+npm test
+```
+
+Testes e2e:
+
+```bash
+npm run test:e2e
+```
+
+Lint/format:
+
+```bash
+npm run lint
+npm run format
+```
+
+---
+
+Projeto para fins de estudo e evolução contínua.
